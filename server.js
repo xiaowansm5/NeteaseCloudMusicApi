@@ -8,6 +8,7 @@ const cache = require('./util/apicache').middleware
 const { cookieToJson } = require('./util/index')
 const fileUpload = require('express-fileupload')
 const decode = require('safe-decode-uri-component')
+const match = require('@unblockneteasemusic/server')
 
 /**
  * The version check result.
@@ -271,6 +272,16 @@ async function consturctServer(moduleDefs) {
       }
     })
   }
+  app.use('/unlockmusic', async (req, res) => {
+    try {
+      const trackId = req.query.id
+      const result = await match(trackId, ['qq', 'kuwo', 'migu'])
+      const re = { code: 200, data: result }
+      res.send(JSON.stringify(re))
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  })
 
   return app
 }
