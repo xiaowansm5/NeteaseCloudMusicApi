@@ -9,7 +9,7 @@ const { cookieToJson } = require('./util/index')
 const fileUpload = require('express-fileupload')
 const decode = require('safe-decode-uri-component')
 const match = require('@unblockneteasemusic/server')
-
+const routes = require('./module/routes')
 /**
  * The version check result.
  * @readonly
@@ -68,20 +68,19 @@ async function getModulesDefinitions(
   specificRoute,
   doRequire = true,
 ) {
-  const files = await fs.promises.readdir(modulesPath)
+  // const files = await fs.promises.readdir(modulesPath)
   const parseRoute = (/** @type {string} */ fileName) =>
     specificRoute && fileName in specificRoute
       ? specificRoute[fileName]
       : `/${fileName.replace(/\.js$/i, '').replace(/_/g, '/')}`
 
-  const modules = files
+  const modules = Object.entries(routes)
     .reverse()
-    .filter((file) => file.endsWith('.js'))
-    .map((file) => {
-      const identifier = file.split('.').shift()
-      const route = parseRoute(file)
-      const modulePath = path.join(modulesPath, file)
-      const module = doRequire ? require(modulePath) : modulePath
+    // .filter((route) => file.endsWith('.js'))
+    .map(([identifier, module]) => {
+      const route = parseRoute(identifier)
+      // const modulePath = path.join(modulesPath, file)
+      // const module = doRequire ? require(modulePath) : modulePath
 
       return { identifier, route, module }
     })
